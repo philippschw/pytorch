@@ -326,18 +326,15 @@ class SummaryWriter:
         """
         torch._C._log_api_usage_once("tensorboard.logging.add_hparams")
         if type(hparam_dict) is not dict or type(metric_dict) is not dict:
-            raise TypeError("hparam_dict and metric_dict should be dictionary.")
+            raise TypeError('hparam_dict and metric_dict should be dictionary.')
         exp, ssi, sei = hparams(hparam_dict, metric_dict, hparam_domain_discrete)
 
-        if not run_name:
-            run_name = str(time.time())
-        logdir = os.path.join(self._get_file_writer().get_logdir(), run_name)
-        with SummaryWriter(log_dir=logdir) as w_hp:
-            w_hp.file_writer.add_summary(exp, global_step)
-            w_hp.file_writer.add_summary(ssi, global_step)
-            w_hp.file_writer.add_summary(sei, global_step)
-            for k, v in metric_dict.items():
-                w_hp.add_scalar(k, v, global_step)
+        self.file_writer.add_summary(exp)
+        self.file_writer.add_summary(ssi)
+        self.file_writer.add_summary(sei)
+        for k, v in metric_dict.items():
+            if v is not None:
+                self.add_scalar(k, v)
 
     def add_scalar(
         self,
